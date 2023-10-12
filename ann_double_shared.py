@@ -49,7 +49,7 @@ class ANNDoubleShared(nn.Module):
 
         x3 = torch.concat((x_spatial, x2), dim=2)
 
-        x4 = torch.zeros((x_bands.shape[0],9,5))
+        x4 = torch.zeros((x_bands.shape[0],9,1))
         x4 = x4.to(self.device)
 
         for i in range(x4.shape[1]):
