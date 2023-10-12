@@ -18,31 +18,37 @@ class ANNConv(nn.Module):
         self.num_epochs = 3000
         self.batch_size = 3000
         self.lr = 0.01
-        self.INPUT_SIZE = self.INPUT_SIZE
+        self.weights = torch.Tensor([0.1,0.1,0.1,0.1,0.4,0.1,0.1,0.1,0.1])
+        self.weights = self.weights.to(device)
+        self.weights = nn.Parameter(self.weights)
 
         self.linear1 = nn.Sequential(
-            nn.Linear(self.INPUT_SIZE, 20),
+            nn.Linear(12, 20),
             nn.LeakyReLU(),
-            nn.Linear(20, self.INPUT_SIZE)
+            nn.Linear(20, 12)
         )
 
         self.linear2 = nn.Sequential(
-            nn.Linear(self.INPUT_SIZE, 20),
+            nn.Linear(12, 20),
             nn.LeakyReLU(),
             nn.Linear(20, 1)
         )
 
     def forward(self, x):
         x = x.reshape(x.shape[0],9,14)
-        #x = x[:,:,2:]
-        x2 = torch.zeros((x.shape[0],9,self.INPUT_SIZE))
+        x = x[:,:,2:]
+        x2 = torch.zeros((x.shape[0],9,12))
         x2 = x2.to(self.device)
         for i in range(x.shape[1]):
             x2[:,i] = self.linear1(x[:,i])
 
-        x3 = torch.zeros((x2.shape[0],9,self.INPUT_SIZE))
+        x3 = torch.zeros((x2.shape[0],9,12))
         x3 = x3.to(self.device)
-        x3 = torch.mean(x3,dim=1)
+        for i in range(12):
+            x3[:,:,i] = (x2[:,:,i] * self.weights)
+
+        x3 = torch.sum(x3,dim=1)/torch.sum(self.weights)
+
         x3 = self.linear2(x3)
         return x3
 
@@ -72,6 +78,8 @@ class ANNConv(nn.Module):
                     r2_validation = r2_score(y_all, y_hat_all)
                     print(f'Epoch:{epoch + 1} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
                           f'Loss:{loss.item():.3f}, R2_TEST: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}')
+
+        print(self.weights)
 
     def evaluate(self, ds):
         batch_size = 30000
