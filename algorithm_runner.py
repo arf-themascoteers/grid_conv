@@ -5,6 +5,7 @@ from ann_shared_spatial import ANNSharedSpatial
 from ann_shared_spatial_small import ANNSharedSpatialSmall
 from ann_double_shared import ANNDoubleShared
 from ann_double_shared_small import ANNDoubleSharedSmall
+from ann_conv import ANNConv
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.ensemble import RandomForestRegressor
