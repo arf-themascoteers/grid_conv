@@ -21,11 +21,13 @@ class SceneToCSVs:
             dest_clipped_scene_folder_path = os.path.join(self.processed_path, scene)
             clip_path = os.path.join(dest_clipped_scene_folder_path, "clipped")
             csvs_root = os.path.join(dest_clipped_scene_folder_path, "csvs")
+            neighbours_root = os.path.join(dest_clipped_scene_folder_path, "nbs")
             if os.path.exists(csvs_root):
                 print(f"csvs dir exist for scene {scene}. Skipping.")
                 continue
             else:
                 os.mkdir(csvs_root)
+                os.mkdir(neighbours_root)
             table, columns = self.create_table(clip_path)
             df = pd.DataFrame(data=table, columns=columns)
             df.sort_values(CSVProcessor.get_spatial_columns(df), inplace=True)
@@ -36,7 +38,7 @@ class SceneToCSVs:
             df.to_csv(complete_path, index=False)
             CSVProcessor.aggregate(complete_path, ag_path)
             CSVProcessor.make_ml_ready(ag_path, ml_path)
-            CSVProcessor.gridify(ml_path, grid_path)
+            CSVProcessor.gridify(ml_path, grid_path, neighbours_root)
             print(f"Done scene {index+1}: {scene}")
 
     def create_table(self, clip_path):

@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from s2_bands import S2Bands
+import numpy as np
+import os
 
 
 class CSVProcessor:
@@ -75,12 +77,13 @@ class CSVProcessor:
         return non_band_columns, band_columns
 
     @staticmethod
-    def gridify(ag, grid):
+    def gridify(ag, grid, neighbours_root):
         non_band_columns, band_columns = CSVProcessor.get_grid_columns()
         df = pd.read_csv(ag)
+        scene_fusion = ("scene" in df.columns)
         dest = None
         for index, row in df.iterrows():
-            neighbours = CSVProcessor.get_neighbours(df, row)
+            neighbours, np_neighbours = CSVProcessor.get_neighbours(df, row)
             if neighbours is None or len(neighbours) != 9:
                 continue
 
@@ -100,11 +103,18 @@ class CSVProcessor:
             else:
                 dest = pd.concat((dest, new_df), axis=0)
 
+            file_name = f"{int(row['row'])}_{int(row['column'])}.npy"
+            if scene_fusion:
+                file_name = f"{int(row['scene'])}_{file_name}"
+            np_file = os.path.join(neighbours_root,file_name)
+            np.save(np_file, np_neighbours)
+
         dest = dest.round(4)
         dest.to_csv(grid, index=False)
 
     @staticmethod
     def get_neighbours(df, row):
+        band_columns = S2Bands.get_all_bands()
         the_row = row["row"]
         the_column = row["column"]
         the_scene = None
@@ -113,6 +123,7 @@ class CSVProcessor:
             the_scene = row["scene"]
 
         neighbours = None
+        np_neighbours = np.zeros((3,3,12))
         row_offset = [-1,0,1]
         col_offset = [-1,0,1]
         for ro in row_offset:
@@ -124,13 +135,15 @@ class CSVProcessor:
                 else:
                     filter = df[(df["row"] == target_row) & (df["column"] == target_col)]
                 if len(filter) == 0:
-                    return None
+                    return None, None
                 filter = filter.iloc[0:1]
                 filter.insert(0,"column_offset",co)
                 filter.insert(0,"row_offset",ro)
+                bands = filter[band_columns].to_numpy()
+                np_neighbours[ro+1, co+1] = bands
                 if neighbours is None:
                     neighbours = filter
                 else:
                     neighbours = pd.concat((neighbours, filter), axis=0)
 
-        return neighbours
+        return neighbours, np_neighbours

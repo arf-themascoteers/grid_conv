@@ -6,4 +6,5 @@ if __name__ == "__main__":
         "ann_centric_avg","ann_learnable_avg",
         "ann_learnable_avg_skip"
     ])
+    c = Evaluator(prefix="xy1", folds=10, algorithms=["mlr"])
     c.process()
