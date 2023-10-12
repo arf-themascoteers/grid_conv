@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.model_selection import KFold
 import torch
 from sklearn import model_selection
-from s2_bands import S2Bands
 from csv_processor import CSVProcessor
 
 
