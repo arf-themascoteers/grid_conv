@@ -6,7 +6,7 @@ from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
 
 
-class ANNSharedSpatial(nn.Module):
+class ANNSharedSpatialSmall(nn.Module):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__()
         self.verbose = False
@@ -22,11 +22,11 @@ class ANNSharedSpatial(nn.Module):
         self.linear1 = nn.Sequential(
             nn.Linear(12, 10),
             nn.LeakyReLU(),
-            nn.Linear(10, 2)
+            nn.Linear(10, 1)
         )
 
         self.linear2 = nn.Sequential(
-            nn.Linear(36, 10),
+            nn.Linear(27, 10),
             nn.LeakyReLU(),
             nn.Linear(10, 1)
         )
