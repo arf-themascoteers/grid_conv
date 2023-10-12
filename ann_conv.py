@@ -20,14 +20,21 @@ class ANNConv(nn.Module):
         self.batch_size = 3000
         self.lr = 0.01
 
+        self.conv1 = nn.Conv2d(12,24,3)
+        self.relu1 = nn.LeakyReLU()
+        self.avg1 = nn.AvgPool2d(3,3)
+        self.flatten = nn.Flatten()
+
         self.linear1 = nn.Sequential(
-            nn.Linear(108, 10),
+            nn.Linear(24, 5),
             nn.LeakyReLU(),
-            nn.Linear(10, 1)
+            nn.Linear(5,1)
         )
 
     def forward(self, x):
-        x = x.reshape(x.shape[0],-1)
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.flatten(x)
         x = self.linear1(x)
         return x
 

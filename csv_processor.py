@@ -125,7 +125,7 @@ class CSVProcessor:
             the_scene = row["scene"]
 
         neighbours = None
-        np_neighbours = np.zeros((3,3,12))
+        np_neighbours = np.zeros((12,3,3))
         row_offset = [-1,0,1]
         col_offset = [-1,0,1]
         for ro in row_offset:
@@ -142,7 +142,7 @@ class CSVProcessor:
                 filter.insert(0,"column_offset",co)
                 filter.insert(0,"row_offset",ro)
                 bands = filter[band_columns].to_numpy()
-                np_neighbours[ro+1, co+1] = bands
+                np_neighbours[:,ro+1, co+1] = bands
                 if neighbours is None:
                     neighbours = filter
                 else:
