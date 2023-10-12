@@ -13,6 +13,7 @@ class DSManager:
         non_band_columns = []
         df = pd.read_csv(csv)
         self.x = non_band_columns + band_columns
+        self.x = ["scene", "row", "column"]
         self.y = "som"
         self.folds = folds
         columns = self.x + [self.y]

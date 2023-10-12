@@ -53,6 +53,11 @@ class AlgorithmRunner:
             model_instance = ANNDoubleSharedSmall(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
+        elif algorithm == "ann_conv":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNConv(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
 
         else:
             model_instance = None
