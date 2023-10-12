@@ -35,7 +35,7 @@ class ANNSharedSpatialSmall(nn.Module):
         x = x.reshape(x.shape[0],9,14)
         x_spatial = x[:,:,0:2]
         x_bands = x[:,:,2:]
-        x2 = torch.zeros((x_bands.shape[0],9,2))
+        x2 = torch.zeros((x_bands.shape[0],9,1))
         x2 = x2.to(self.device)
         for i in range(x_bands.shape[1]):
             x2[:,i] = self.linear1(x_bands[:,i])
