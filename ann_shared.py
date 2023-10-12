@@ -4,14 +4,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
-from csv_processor import CSVProcessor
 
 
 class ANNShared(nn.Module):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__()
-        self.non_band_columns, self.band_columns = CSVProcessor.get_grid_columns()
-        self.non_band_columns.remove("som")
         self.verbose = False
         self.TEST = False
         self.device = device
@@ -23,27 +20,28 @@ class ANNShared(nn.Module):
         self.lr = 0.01
 
         self.linear1 = nn.Sequential(
-            nn.Linear(14, 20),
+            nn.Linear(12, 15),
             nn.LeakyReLU(),
-            nn.Linear(20, 14)
+            nn.Linear(15, 2)
         )
 
         self.linear2 = nn.Sequential(
-            nn.Linear(14, 20),
+            nn.Linear(18, 15),
             nn.LeakyReLU(),
-            nn.Linear(20, 1)
+            nn.Linear(15, 1)
         )
 
     def forward(self, x):
-        x = x[:,len(self.non_band_columns):]
         x = x.reshape(x.shape[0],9,14)
-        # x_bands = x[:,:,0:12]
-        # x_offsets = x[:,:,12:]
-        x2 = torch.zeros((x.shape[0],9,14))
+        x_spatial = x[:,:,0:2]
+        x_bands = x[:,:,2:]
+        x2 = torch.zeros((x_bands.shape[0],9,2))
         x2 = x2.to(self.device)
-        for i in range(x.shape[1]):
-            x2[:,i] = self.linear1(x[:,i])
-        x2 = torch.mean(x2, dim=1)
+        for i in range(x_bands.shape[1]):
+            x2[:,i] = self.linear1(x_bands[:,i])
+
+        x2 = x2.reshape(x2.shape[0],-1)
+
         x2 = self.linear2(x2)
         return x2
 
@@ -73,6 +71,7 @@ class ANNShared(nn.Module):
                     r2_validation = r2_score(y_all, y_hat_all)
                     print(f'Epoch:{epoch + 1} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
                           f'Loss:{loss.item():.3f}, R2_TEST: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}')
+
 
     def evaluate(self, ds):
         batch_size = 30000
