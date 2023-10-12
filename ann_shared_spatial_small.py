@@ -40,7 +40,7 @@ class ANNSharedSpatialSmall(nn.Module):
         for i in range(x_bands.shape[1]):
             x2[:,i] = self.linear1(x_bands[:,i])
 
-        x3 = torch.concat((x_spatial, x2), dim=3)
+        x3 = torch.concat((x_spatial, x2), dim=2)
 
         x3 = x3.reshape(x3.shape[0],-1)
 
