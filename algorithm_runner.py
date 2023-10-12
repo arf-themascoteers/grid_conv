@@ -1,6 +1,8 @@
 import torch
 from ann_shared import ANNShared
 from ann_shared_small import ANNSharedSmall
+from ann_shared_spatial import ANNSharedSpatial
+from ann_shared_spatial_small import ANNSharedSpatialSmall
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -30,7 +32,12 @@ class AlgorithmRunner:
             y_hats = model_instance.test()
         elif algorithm == "ann_shared_spatial":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNShared(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance = ANNSharedSpatial(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_shared_spatial_small":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSharedSpatialSmall(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
 
