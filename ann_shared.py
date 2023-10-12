@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
@@ -20,15 +21,15 @@ class ANNShared(nn.Module):
         self.lr = 0.01
 
         self.linear1 = nn.Sequential(
-            nn.Linear(12, 15),
+            nn.Linear(12, 10),
             nn.LeakyReLU(),
-            nn.Linear(15, 2)
+            nn.Linear(10, 2)
         )
 
         self.linear2 = nn.Sequential(
-            nn.Linear(18, 15),
+            nn.Linear(18, 10),
             nn.LeakyReLU(),
-            nn.Linear(15, 1)
+            nn.Linear(10, 1)
         )
 
     def forward(self, x):
@@ -41,7 +42,6 @@ class ANNShared(nn.Module):
             x2[:,i] = self.linear1(x_bands[:,i])
 
         x2 = x2.reshape(x2.shape[0],-1)
-
         x2 = self.linear2(x2)
         return x2
 
