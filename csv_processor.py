@@ -67,7 +67,7 @@ class CSVProcessor:
 
     @staticmethod
     def get_grid_columns():
-        non_band_columns = ["cell","row","column","counter","som_std","elevation","moisture","temp","som"]
+        non_band_columns = ["scene","cell","row","column","counter","som_std","elevation","moisture","temp","som"]
         band_columns = []
         for i in range(9):
             band_columns.append(f"row_offset_{i}")
