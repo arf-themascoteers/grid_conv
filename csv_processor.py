@@ -90,6 +90,8 @@ class CSVProcessor:
             new_row = {}
 
             for c in non_band_columns:
+                if not scene_fusion and c == "scene":
+                    continue
                 new_row[c] = row[c]
 
             for ind, (i, neighbour) in enumerate(neighbours.iterrows()):
