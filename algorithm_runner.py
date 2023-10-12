@@ -9,6 +9,7 @@ from ann_avg import ANNAvg
 from ann_avg_skip import ANNAvgSkip
 from ann_centric_avg import ANNCentricAvg
 from ann_learnable_avg import ANNLearnableAvg
+from ann_conv import ANNConv
 from ann_learnable_avg_skip import ANNLearnableAvgSkip
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_decomposition import PLSRegression
@@ -80,6 +81,11 @@ class AlgorithmRunner:
         elif algorithm == "ann_learnable_avg_skip":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_instance = ANNLearnableAvgSkip(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_conv":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNConv(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
 
