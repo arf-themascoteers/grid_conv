@@ -21,29 +21,15 @@ class ANNConv(nn.Module):
         self.lr = 0.01
 
         self.linear1 = nn.Sequential(
-            nn.Linear(12, 10),
-            nn.LeakyReLU(),
-            nn.Linear(10, 2)
-        )
-
-        self.linear2 = nn.Sequential(
-            nn.Linear(18, 10),
+            nn.Linear(108, 10),
             nn.LeakyReLU(),
             nn.Linear(10, 1)
         )
 
     def forward(self, x):
-        x = x.reshape(x.shape[0],9,14)
-        x_spatial = x[:,:,0:2]
-        x_bands = x[:,:,2:]
-        x2 = torch.zeros((x_bands.shape[0],9,2))
-        x2 = x2.to(self.device)
-        for i in range(x_bands.shape[1]):
-            x2[:,i] = self.linear1(x_bands[:,i])
-
-        x2 = x2.reshape(x2.shape[0],-1)
-        x2 = self.linear2(x2)
-        return x2
+        x = x.reshape(x.shape[0],-1)
+        x = self.linear1(x)
+        return x
 
     def train_model(self):
         if self.TEST:

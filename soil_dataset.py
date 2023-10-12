@@ -14,10 +14,10 @@ class SoilDataset(Dataset):
 
     def __getitem__(self, idx):
         x = self.x[idx]
-        scene = int(x['scene'])
-        row = int(x['row'])
-        column = int(x['column'])
+        scene = int(x[0])
+        row = int(x[1])
+        column = int(x[2])
         file_name = f"{scene}_{row}_{column}.npy"
         file_path = f"{self.path}/{file_name}"
         data = np.load(file_path)
-        return data, self.y[idx]
+        return torch.tensor(data, dtype=torch.float32), self.y[idx]
