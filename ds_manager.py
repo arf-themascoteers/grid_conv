@@ -10,6 +10,7 @@ class DSManager:
         torch.manual_seed(0)
         non_band_columns, band_columns = CSVProcessor.get_grid_columns()
         non_band_columns.remove("som")
+        non_band_columns = []
         df = pd.read_csv(csv)
         self.x = non_band_columns + band_columns
         self.y = "som"

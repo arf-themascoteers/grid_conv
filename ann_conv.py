@@ -4,14 +4,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
-from csv_processor import CSVProcessor
 
 
 class ANNConv(nn.Module):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__()
-        self.non_band_columns, self.band_columns = CSVProcessor.get_grid_columns()
-        self.non_band_columns.remove("som")
         self.verbose = False
         self.TEST = False
         self.device = device
@@ -21,38 +18,31 @@ class ANNConv(nn.Module):
         self.num_epochs = 3000
         self.batch_size = 3000
         self.lr = 0.01
-        self.weights = torch.Tensor([0.1,0.1,0.1,0.1,0.4,0.1,0.1,0.1,0.1])
-        self.weights = self.weights.to(device)
-        self.weights = nn.Parameter(self.weights)
+        self.INPUT_SIZE = self.INPUT_SIZE
 
         self.linear1 = nn.Sequential(
-            nn.Linear(12, 20),
+            nn.Linear(self.INPUT_SIZE, 20),
             nn.LeakyReLU(),
-            nn.Linear(20, 12)
+            nn.Linear(20, self.INPUT_SIZE)
         )
 
         self.linear2 = nn.Sequential(
-            nn.Linear(12, 20),
+            nn.Linear(self.INPUT_SIZE, 20),
             nn.LeakyReLU(),
             nn.Linear(20, 1)
         )
 
     def forward(self, x):
-        x = x[:,len(self.non_band_columns):]
         x = x.reshape(x.shape[0],9,14)
-        x = x[:,:,0:12]
-        x2 = torch.zeros((x.shape[0],9,12))
+        #x = x[:,:,2:]
+        x2 = torch.zeros((x.shape[0],9,self.INPUT_SIZE))
         x2 = x2.to(self.device)
         for i in range(x.shape[1]):
             x2[:,i] = self.linear1(x[:,i])
 
-        x3 = torch.zeros((x2.shape[0],9,12))
+        x3 = torch.zeros((x2.shape[0],9,self.INPUT_SIZE))
         x3 = x3.to(self.device)
-        for i in range(12):
-            x3[:,:,i] = (x2[:,:,i] * self.weights)
-
-        x3 = torch.sum(x3,dim=1)/torch.sum(self.weights)
-
+        x3 = torch.mean(x3,dim=1)
         x3 = self.linear2(x3)
         return x3
 
