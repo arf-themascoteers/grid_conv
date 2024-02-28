@@ -11,10 +11,7 @@ class CSVIntegrator:
 
         self.complete = os.path.join(self.dir_hash_path, "complete.csv")
         self.ag = os.path.join(self.dir_hash_path, "ag.csv")
-        self.grid = os.path.join(self.dir_hash_path, "grid.csv")
         self.ml = os.path.join(self.dir_hash_path, "ml.csv")
-        self.nbs = os.path.join(self.dir_hash_path, "nbs")
-        os.mkdir(self.nbs)
 
     def integrate(self):
         all_complete = None
@@ -42,5 +39,5 @@ class CSVIntegrator:
         all_complete.to_csv(self.complete, index=False)
         all_ag.to_csv(self.ag, index=False)
         CSVProcessor.make_ml_ready(self.ag, self.ml)
-        return self.complete, self.ag, self.ml, self.grid
+        return self.complete, self.ag, self.ml
 

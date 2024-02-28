@@ -12,7 +12,7 @@ class Evaluator:
         self.algorithms = algorithms
 
         if self.algorithms is None:
-            self.algorithms = ["mlr", "rf", "svr", "ann", "ann_es"]
+            self.algorithms = ["mlr", "rf", "svr", "ann_simple"]
 
         self.config_list = ["Run"]
         self.csvs = []

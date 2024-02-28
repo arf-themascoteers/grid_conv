@@ -73,7 +73,7 @@ class S2Extractor:
     def process(self):
         if os.path.exists(self.dir_hash_path):
             print(f"Dir exists for {self.dir_str_original} - ({self.dir_hash_path}). Skipping.")
-            return os.path.join(self.dir_hash_path, "grid.csv")
+            return os.path.join(self.dir_hash_path, "ml.csv")
 
         os.mkdir(self.dir_hash_path)
         scene_processor = SceneProcessor(self.scene_list, self.processed_path, self.source_csv_path)
@@ -81,9 +81,9 @@ class S2Extractor:
         cd = SceneToCSVs(self.scene_list, self.processed_path, self.source_csv_path)
         cd.create_csvs()
         csv = CSVIntegrator(self.processed_path, self.dir_hash_path, self.scene_list)
-        complete_row, ag_row, ml_row, grid_row = csv.integrate()
+        complete_row, ag_row, ml_row = csv.integrate()
         self.write_dataset_list_file(self.dir_hash, self.scenes_str)
-        return grid_row
+        return ml_row
 
 
 

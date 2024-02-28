@@ -1,16 +1,10 @@
 import torch
-from ann_shared import ANNShared
-from ann_shared_small import ANNSharedSmall
-from ann_shared_spatial import ANNSharedSpatial
-from ann_shared_spatial_small import ANNSharedSpatialSmall
-from ann_double_shared import ANNDoubleShared
-from ann_double_shared_small import ANNDoubleSharedSmall
-from ann_conv import ANNConv
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score
+from ann_simple import ANNSimple
 
 
 class AlgorithmRunner:
@@ -23,37 +17,11 @@ class AlgorithmRunner:
                         ):
         y_hats = None
         print(f"Train: {len(train_y)}, Test: {len(test_y)}, Validation: {len(validation_y)}")
-        if algorithm == "ann_shared":
+        if algorithm == "ann_simple":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_instance = ANNShared(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
-        elif algorithm == "ann_shared_small":
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNSharedSmall(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-            model_instance.train_model()
-            y_hats = model_instance.test()
-        elif algorithm == "ann_shared_spatial":
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNSharedSpatial(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-            model_instance.train_model()
-            y_hats = model_instance.test()
-        elif algorithm == "ann_shared_spatial_small":
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNSharedSpatialSmall(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-            model_instance.train_model()
-            y_hats = model_instance.test()
-        elif algorithm == "ann_double_shared":
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNDoubleShared(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-            model_instance.train_model()
-            y_hats = model_instance.test()
-        elif algorithm == "ann_double_shared_small":
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model_instance = ANNDoubleSharedSmall(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-            model_instance.train_model()
-            y_hats = model_instance.test()
-
         else:
             model_instance = None
             if algorithm == "mlr":
