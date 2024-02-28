@@ -42,6 +42,5 @@ class CSVIntegrator:
         all_complete.to_csv(self.complete, index=False)
         all_ag.to_csv(self.ag, index=False)
         CSVProcessor.make_ml_ready(self.ag, self.ml)
-        CSVProcessor.gridify(self.ml, self.grid, self.nbs)
         return self.complete, self.ag, self.ml, self.grid
 

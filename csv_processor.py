@@ -66,86 +66,12 @@ class CSVProcessor:
         return ["lon", "lat", "when"]
 
     @staticmethod
-    def get_grid_columns():
-        non_band_columns = ["scene","cell","row","column","counter","som_std","elevation","moisture","temp","som"]
-        band_columns = []
-        for i in range(9):
-            band_columns.append(f"row_offset_{i}")
-            band_columns.append(f"column_offset_{i}")
-            for band in S2Bands.get_all_bands():
-                band_columns.append(f"{band}_{i}")
+    def get_ml_columns():
+        non_band_columns = ["scene","cell"]
+        band_columns = S2Bands.get_all_bands()
         return non_band_columns, band_columns
 
     @staticmethod
-    def gridify(ag, grid, neighbours_root):
-        non_band_columns, band_columns = CSVProcessor.get_grid_columns()
-        df = pd.read_csv(ag)
-        scene_fusion = ("scene" in df.columns)
-        dest = None
-        for index, row in df.iterrows():
-            neighbours, np_neighbours = CSVProcessor.get_neighbours(df, row)
-            if neighbours is None or len(neighbours) != 9:
-                continue
-
-            new_row = {}
-
-            for c in non_band_columns:
-                if not scene_fusion and c == "scene":
-                    continue
-                new_row[c] = row[c]
-
-            for ind, (i, neighbour) in enumerate(neighbours.iterrows()):
-                new_row[f"row_offset_{ind}"] = neighbour["row_offset"]
-                new_row[f"column_offset_{ind}"] = neighbour["column_offset"]
-                for band in S2Bands.get_all_bands():
-                    new_row[f"{band}_{ind}"] = neighbour[band]
-            new_df = pd.DataFrame(columns=non_band_columns+band_columns, data=[new_row])
-            if dest is None:
-                dest = new_df
-            else:
-                dest = pd.concat((dest, new_df), axis=0)
-
-            file_name = f"{int(row['row'])}_{int(row['column'])}.npy"
-            if scene_fusion:
-                file_name = f"{int(row['scene'])}_{file_name}"
-            np_file = os.path.join(neighbours_root,file_name)
-            np.save(np_file, np_neighbours)
-
-        dest = dest.round(4)
-        dest.to_csv(grid, index=False)
-
-    @staticmethod
-    def get_neighbours(df, row):
-        band_columns = S2Bands.get_all_bands()
-        the_row = row["row"]
-        the_column = row["column"]
-        the_scene = None
-        scene_fusion = ("scene" in df.columns)
-        if scene_fusion:
-            the_scene = row["scene"]
-
-        neighbours = None
-        np_neighbours = np.zeros((3,3,12))
-        row_offset = [-1,0,1]
-        col_offset = [-1,0,1]
-        for ro in row_offset:
-            for co in col_offset:
-                target_row = the_row + ro
-                target_col = the_column + co
-                if scene_fusion:
-                    filter = df[(df["row"] == target_row) & (df["column"] == target_col) & (df["scene"] == the_scene)]
-                else:
-                    filter = df[(df["row"] == target_row) & (df["column"] == target_col)]
-                if len(filter) == 0:
-                    return None, None
-                filter = filter.iloc[0:1]
-                filter.insert(0,"column_offset",co)
-                filter.insert(0,"row_offset",ro)
-                bands = filter[band_columns].to_numpy()
-                np_neighbours[ro+1, co+1] = bands
-                if neighbours is None:
-                    neighbours = filter
-                else:
-                    neighbours = pd.concat((neighbours, filter), axis=0)
-
-        return neighbours, np_neighbours
+    def get_computable_columns():
+        non_band_columns, band_columns = CSVProcessor.get_ml_columns()
+        return band_columns
