@@ -20,9 +20,9 @@ class DSManager:
     def get_k_folds(self):
         kf = KFold(n_splits=self.folds)
         for i, (train_index, test_index) in enumerate(kf.split(self.df)):
-            train_data = self.df[train_index]
+            train_data = self.df.iloc[train_index]
             train_data, validation_data = model_selection.train_test_split(train_data, test_size=0.1, random_state=2)
-            test_data = self.df[test_index]
+            test_data = self.df.iloc[test_index]
             train_x = train_data[CSVProcessor.get_computable_columns()].to_numpy()
             train_y = train_data["som"].to_numpy()
             test_x = test_data[CSVProcessor.get_computable_columns()].to_numpy()
