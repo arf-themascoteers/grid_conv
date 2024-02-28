@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
+
+import utils
 from soil_dataset import SoilDataset
 
 
@@ -27,12 +29,16 @@ class ANNSAVI(nn.Module):
         )
 
     def forward(self, x):
-        band_8 = x[:,10]
-        band_4 = x[:,3]
-        savi = ((band_8-band_4)/(band_8+band_4+self.L))*(1+self.L)
+        savi = self.si(x)
         savi = savi.reshape(savi.shape[0],1)
         x = self.linear(savi)
         return x
+
+    def si(self, x):
+        band_8 = x[:,10]
+        band_4 = x[:,3]
+        savi = ((band_8-band_4)/(band_8+band_4+self.L))*(1+self.L)
+        return savi
 
     def train_model(self):
         if self.TEST:
@@ -58,10 +64,20 @@ class ANNSAVI(nn.Module):
                     r2_test = r2_score(y.detach().cpu().numpy(), y_hat.detach().cpu().numpy())
                     y_all, y_hat_all = self.evaluate(self.validation_ds)
                     r2_validation = r2_score(y_all, y_hat_all)
-
+                    s,y = self.evaluate_si(self.validation_ds)
+                    pc = utils.calculate_pc(s,y)
                     print(f'Epoch:{epoch + 1} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
-                          f'Loss:{loss.item():.3f}, R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}')
+                          f'Loss:{loss.item():.3f}, R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}, '
+                          f'PC: {pc:.3f}')
 
+
+    def evaluate_si(self, ds):
+        batch_size = 30000
+        dataloader = DataLoader(ds, batch_size=batch_size, shuffle=False)
+        for (x, y) in dataloader:
+            x = x.to(self.device)
+            s = self.si(x)
+            return s,y
 
     def evaluate(self, ds):
         batch_size = 30000
