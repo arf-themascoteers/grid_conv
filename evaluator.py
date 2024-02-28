@@ -44,20 +44,19 @@ class Evaluator:
         ds = DSManager(self.csvs[index_config], folds=self.folds)
         for fold_number, (train_x, train_y, test_x, test_y, validation_x, validation_y) in enumerate(ds.get_k_folds()):
             print("CSV: ", self.csvs[index_config])
-            r2, rmse = self.reporter.get_details(index_algorithm, repeat_number, fold_number, index_config)
+            r2, rmse, pc = self.reporter.get_details(index_algorithm, repeat_number, fold_number, index_config)
             if r2 != 0:
                 print(f"{repeat_number}-{fold_number} done already")
                 continue
             else:
-                r2, rmse = AlgorithmRunner.calculate_score(train_x, train_y,
+                r2, rmse, pc = AlgorithmRunner.calculate_score(train_x, train_y,
                                                            test_x, test_y,
                                                            validation_x, validation_y,
                                                            algorithm
                                                            )
             if self.verbose:
-                print(f"{r2} - {rmse}")
-                print(f"R2 - RMSE")
-            self.reporter.set_details(index_algorithm, repeat_number, fold_number, index_config, r2, rmse)
+                print(f"{r2} - {rmse} - {pc}")
+            self.reporter.set_details(index_algorithm, repeat_number, fold_number, index_config, r2, rmse, pc)
             self.reporter.write_details()
             self.reporter.update_summary()
 

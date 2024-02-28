@@ -1,12 +1,10 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
 import utils
-from pc import PearsonCorrelation
 
 
 class ANNSAVILearnable(nn.Module):
@@ -18,7 +16,7 @@ class ANNSAVILearnable(nn.Module):
         self.train_ds = SoilDataset(train_x, train_y)
         self.test_ds = SoilDataset(test_x, test_y)
         self.validation_ds = SoilDataset(validation_x, validation_y)
-        self.num_epochs = 5000
+        self.num_epochs = 100
         self.batch_size = 3000
         self.lr = 0.001
         self.L = nn.Parameter(torch.tensor(0.5))
@@ -27,7 +25,6 @@ class ANNSAVILearnable(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(10, 1)
         )
-        self.pc = PearsonCorrelation()
 
     def forward(self, x):
         savi = self.si(x)
@@ -57,26 +54,27 @@ class ANNSAVILearnable(nn.Module):
                 y_hat, savi = self(x)
                 y_hat = y_hat.reshape(-1)
                 loss = criterion(y_hat, y)
-                pc = self.pc(savi.reshape(-1), y)
-                pc_loss = -torch.abs(pc)/100
-                loss_total = loss + pc_loss
 
                 if self.verbose:
                     r2_test = r2_score(y.detach().cpu().numpy(), y_hat.detach().cpu().numpy())
                     y_all, y_hat_all = self.evaluate(self.validation_ds)
                     r2_validation = r2_score(y_all, y_hat_all)
-                    s2,y2 = self.evaluate_si(self.validation_ds)
-                    pc_scipy = utils.calculate_pc(s2,y2)
-                    s = self.si(x)
-                    pc_scipy2 = utils.calculate_pc(s, y)
+                    pc_scipy = self.pc(self.validation_ds)
+                    pc_scipy2 = self.pc(self.train_ds)
                     print(f'Epoch:{epoch} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
-                          f'Loss:{loss.item():.6f}, PC_Loss:{pc_loss.item():.6f}, PC:{pc.item():.3f}, '
-                          f'LossTotal:{loss_total.item():.3f}, R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}, '
-                          f'PC_scipy_val: {pc_scipy:.3f}, PC_scipy_train: {pc_scipy2:.3f}, L: {self.L.item():.3f}')
+                          f'Loss:{loss.item():.6f}, '
+                          f'R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}, '
+                          f'PC_train: {pc_scipy2:.3f}, PC_val: {pc_scipy:.3f}, L: {self.L.item():.3f}')
 
-                loss_total.backward()
+                loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
+
+    def pc(self, ds=None):
+        if ds is None:
+            ds = self.test_ds
+        s2, y2 = self.evaluate_si(ds)
+        return utils.calculate_pc(s2, y2)
 
     def evaluate_si(self, ds):
         batch_size = 30000

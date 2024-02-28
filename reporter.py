@@ -15,7 +15,7 @@ class Reporter:
         self.details_text_columns = ["algorithm", "config"]
         self.summary_file = f"results/{prefix}_summary.csv"
         self.details_file = f"results/{prefix}_details.csv"
-        self.details = np.zeros((len(self.algorithms) * len(self.config_list), self.repeat * self.folds * 2))
+        self.details = np.zeros((len(self.algorithms) * len(self.config_list), self.repeat * self.folds * 3))
         self.sync_details_file()
 
     def sync_details_file(self):
@@ -38,17 +38,24 @@ class Reporter:
             return np.mean(detail_cells)
 
     def update_summary(self):
-        score_mean = np.zeros((len(self.config_list), 2 * len(self.algorithms)))
+        score_mean = np.zeros((len(self.config_list), 3 * len(self.algorithms)))
         iterations = self.repeat * self.folds
         for index_config in range(len(self.config_list)):
             for index_algorithm in range(len(self.algorithms)):
                 details_row = self.get_details_row(index_algorithm, index_config)
+
                 detail_r2_cells = self.details[details_row, 0:iterations]
                 r2_column_index = index_algorithm
                 score_mean[index_config, r2_column_index] = self.find_mean_of_done_iterations(detail_r2_cells)
+
                 detail_rmse_cells = self.details[details_row, iterations:]
                 rmse_column_index = len(self.algorithms) + index_algorithm
                 score_mean[index_config, rmse_column_index] = self.find_mean_of_done_iterations(detail_rmse_cells)
+
+                detail_pc_cells = self.details[details_row, iterations:]
+                pc_column_index = len(self.algorithms) + index_algorithm + index_algorithm
+                score_mean[index_config, pc_column_index] = self.find_mean_of_done_iterations(detail_pc_cells)
+
         self.write_summary(score_mean)
 
     def get_details_alg_conf(self):
@@ -62,25 +69,29 @@ class Reporter:
         return index_algorithm*len(self.config_list) + index_config
 
     def get_details_column(self, repeat_number, fold_number, metric):
-        #metric: 0,1: r2, rmse
+        #metric: 0,1,3: r2, rmse,pc
         return (metric * self.repeat * self.folds ) + (repeat_number*self.folds + fold_number)
 
-    def set_details(self, index_algorithm, repeat_number, fold_number, index_config, r2, rmse):
+    def set_details(self, index_algorithm, repeat_number, fold_number, index_config, r2, rmse, pc):
         details_row = self.get_details_row(index_algorithm, index_config)
         details_column_r2 = self.get_details_column(repeat_number, fold_number, 0)
         details_column_rmse = self.get_details_column(repeat_number, fold_number, 1)
+        details_column_pc = self.get_details_column(repeat_number, fold_number, 2)
         self.details[details_row, details_column_r2] = r2
         self.details[details_row, details_column_rmse] = rmse
+        self.details[details_row, details_column_pc] = pc
 
     def get_details(self, index_algorithm, repeat_number, fold_number, index_config):
         details_row = self.get_details_row(index_algorithm, index_config)
         details_column_r2 = self.get_details_column(repeat_number, fold_number, 0)
         details_column_rmse = self.get_details_column(repeat_number, fold_number, 1)
-        return self.details[details_row,details_column_r2], self.details[details_row,details_column_rmse]
+        details_column_pc = self.get_details_column(repeat_number, fold_number, 2)
+        return self.details[details_row,details_column_r2], self.details[details_row,details_column_rmse],\
+            self.details[details_row, details_column_pc]
 
     def get_details_columns(self):
         cols = []
-        for metric in ["R2", "RMSE"]:
+        for metric in ["R2", "RMSE", "PC"]:
             for repeat in range(1,self.repeat+1):
                 for fold in range(1,self.folds+1):
                     cols.append(f"{metric}({repeat}-{fold})")
@@ -88,7 +99,7 @@ class Reporter:
 
     def get_summary_columns(self):
         cols = []
-        for metric in ["R2", "RMSE"]:
+        for metric in ["R2", "RMSE", "PC"]:
             for algorithm in self.algorithms:
                 cols.append(f"{metric}({algorithm})")
         return cols
