@@ -9,6 +9,8 @@ from ann_savi import ANNSAVI
 from ann_savi_learnable import ANNSAVILearnable
 from ann_savi_skip import ANNSAVISkip
 from ann_savi_skip_learnable import ANNSAVISkipLearnable
+from ann_savi_skip_learnable_fn import ANNSAVISkipLearnableFN
+from ann_savi_skip_learnable_bi import ANNSAVISkipLearnableBI
 
 
 class AlgorithmRunner:
@@ -44,6 +46,16 @@ class AlgorithmRunner:
         elif algorithm == "ann_savi_skip_learnable":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_instance = ANNSAVISkipLearnable(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi_skip_learnable_fn":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVISkipLearnableFN(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi_skip_learnable_bi":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVISkipLearnableBI(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
         else:
