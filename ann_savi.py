@@ -7,7 +7,7 @@ from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
 
 
-class ANNSimple(nn.Module):
+class ANNSAVI(nn.Module):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__()
         self.verbose = True
@@ -19,15 +19,19 @@ class ANNSimple(nn.Module):
         self.num_epochs = 5000
         self.batch_size = 3000
         self.lr = 0.001
-
+        self.L = torch.tensor(0.5)
         self.linear = nn.Sequential(
-            nn.Linear(12, 10),
+            nn.Linear(1, 10),
             nn.LeakyReLU(),
             nn.Linear(10, 1)
         )
 
     def forward(self, x):
-        x = self.linear(x)
+        band_8 = x[:,10]
+        band_4 = x[:,3]
+        savi = ((band_8-band_4)/(band_8+band_4+self.L))*(1+self.L)
+        savi = savi.reshape(savi.shape[0],1)
+        x = self.linear(savi)
         return x
 
     def train_model(self):

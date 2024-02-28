@@ -7,7 +7,7 @@ from sklearn.metrics import r2_score
 from soil_dataset import SoilDataset
 
 
-class ANNSimple(nn.Module):
+class ANNSAVILearnable(nn.Module):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__()
         self.verbose = True
@@ -19,15 +19,19 @@ class ANNSimple(nn.Module):
         self.num_epochs = 5000
         self.batch_size = 3000
         self.lr = 0.001
-
+        self.L = nn.Parameter(torch.tensor(0.5))
         self.linear = nn.Sequential(
-            nn.Linear(12, 10),
+            nn.Linear(1, 10),
             nn.LeakyReLU(),
             nn.Linear(10, 1)
         )
 
     def forward(self, x):
-        x = self.linear(x)
+        band_8 = x[:,10]
+        band_4 = x[:,3]
+        savi = ((band_8-band_4)/(band_8+band_4+self.L))*(1+self.L)
+        savi = savi.reshape(savi.shape[0],1)
+        x = self.linear(savi)
         return x
 
     def train_model(self):
@@ -56,7 +60,7 @@ class ANNSimple(nn.Module):
                     r2_validation = r2_score(y_all, y_hat_all)
 
                     print(f'Epoch:{epoch + 1} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
-                          f'Loss:{loss.item():.3f}, R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}')
+                          f'Loss:{loss.item():.3f}, R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}, L: {self.L.item():.3f}')
 
 
     def evaluate(self, ds):

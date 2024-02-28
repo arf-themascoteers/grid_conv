@@ -5,6 +5,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score
 from ann_simple import ANNSimple
+from ann_savi import ANNSAVI
+from ann_savi_learnable import ANNSAVILearnable
+from ann_savi_skip import ANNSAVISkip
+from ann_savi_skip_learnable import ANNSAVISkipLearnable
 
 
 class AlgorithmRunner:
@@ -20,6 +24,26 @@ class AlgorithmRunner:
         if algorithm == "ann_simple":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_instance = ANNSimple(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVI(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi_learnable":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVILearnable(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi_skip":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVISkip(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
+            model_instance.train_model()
+            y_hats = model_instance.test()
+        elif algorithm == "ann_savi_skip_learnable":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_instance = ANNSAVISkipLearnable(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
             model_instance.train_model()
             y_hats = model_instance.test()
         else:
