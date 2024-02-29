@@ -1,7 +1,7 @@
 from evaluator import Evaluator
 
 if __name__ == "__main__":
-    c = Evaluator(prefix="new", folds=3, algorithms=[
+    c = Evaluator(prefix="new", folds=10, algorithms=[
         "ann_savi",
         "ann_savi_skip",
 

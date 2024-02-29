@@ -23,5 +23,5 @@ class ANNSAVILearnable(ANNSAVIBase):
         return x
 
     def before_epoch_hook(self, epoch):
-        if epoch > self.num_epochs/2:
+        if epoch > self.num_epochs/3:
             self.L.requires_grad = True
