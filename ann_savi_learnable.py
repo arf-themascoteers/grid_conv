@@ -6,7 +6,7 @@ from ann_savi_base import ANNSAVIBase
 class ANNSAVILearnable(ANNSAVIBase):
     def __init__(self, device, train_x, train_y, test_x, test_y, validation_x, validation_y):
         super().__init__(device, train_x, train_y, test_x, test_y, validation_x, validation_y)
-        self.L = nn.Parameter(torch.tensor(0.5))
+        self.L = nn.Parameter(torch.tensor(0.5), requires_grad=False)
         self.linear = nn.Sequential(
             nn.Linear(1, 10),
             nn.LeakyReLU(),
@@ -22,3 +22,6 @@ class ANNSAVILearnable(ANNSAVIBase):
         x = self.linear(savi)
         return x
 
+    def before_epoch_hook(self, epoch):
+        if epoch > self.num_epochs/2:
+            self.L.requires_grad = True

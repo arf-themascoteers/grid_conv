@@ -27,3 +27,7 @@ class ANNSAVISkipLearnable(ANNSAVIBase):
         x = self.linear(x)
         return x
 
+    def before_epoch_hook(self, epoch):
+        if epoch > self.num_epochs/2:
+            self.L.requires_grad = True
+

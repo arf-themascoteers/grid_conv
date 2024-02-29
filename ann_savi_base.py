@@ -16,9 +16,9 @@ class ANNSAVIBase(nn.Module):
         self.train_ds = SoilDataset(train_x, train_y)
         self.test_ds = SoilDataset(test_x, test_y)
         self.validation_ds = SoilDataset(validation_x, validation_y)
-        self.num_epochs = 5000
+        self.num_epochs = 2000
         self.batch_size = 3000
-        self.lr = 0.001
+        self.lr = 0.01
         self.L_value = None
 
     def get_L(self, x):
@@ -41,6 +41,7 @@ class ANNSAVIBase(nn.Module):
         dataloader = DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True)
         total_batch = len(dataloader)
         for epoch in range(self.num_epochs):
+            self.before_epoch_hook(epoch)
             for batch_number, (x, y) in enumerate(dataloader):
                 x = x.to(self.device)
                 y = y.to(self.device)
@@ -62,6 +63,9 @@ class ANNSAVIBase(nn.Module):
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
+
+    def before_epoch_hook(self, epoch):
+        pass
 
     def pc(self, ds=None):
         if ds is None:
