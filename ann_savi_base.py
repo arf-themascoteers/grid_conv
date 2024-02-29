@@ -16,7 +16,7 @@ class ANNSAVIBase(nn.Module):
         self.train_ds = SoilDataset(train_x, train_y)
         self.test_ds = SoilDataset(test_x, test_y)
         self.validation_ds = SoilDataset(validation_x, validation_y)
-        self.num_epochs = 10
+        self.num_epochs = 5000
         self.batch_size = 3000
         self.lr = 0.001
         self.L_value = None
