@@ -19,15 +19,16 @@ class ANNSAVIBase(nn.Module):
         self.num_epochs = 10
         self.batch_size = 3000
         self.lr = 0.001
+        self.L_value = None
 
     def get_L(self, x):
         pass
 
     def si(self, x):
-        self.L = self.get_L(x)
+        self.L_value = self.get_L(x)
         band_8 = x[:,10]
         band_4 = x[:,3]
-        savi = ((band_8-band_4)/(band_8+band_4+self.L))*(1+self.L)
+        savi = ((band_8-band_4)/(band_8+band_4+self.L_value))*(1+self.L_value)
         return savi
 
     def train_model(self):
