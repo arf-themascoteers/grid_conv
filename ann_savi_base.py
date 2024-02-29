@@ -57,7 +57,7 @@ class ANNSAVIBase(nn.Module):
                     print(f'Epoch:{epoch} (of {self.num_epochs}), Batch: {batch_number+1} of {total_batch}, '
                           f'Loss:{loss.item():.6f}, '
                           f'R2_TRAIN: {r2_test:.3f}, R2_Validation: {r2_validation:.3f}, '
-                          f'PC_train: {pc_scipy2:.3f}, PC_val: {pc_scipy:.3f}, L: {self.L.item():.3f}')
+                          f'PC_train: {pc_scipy2:.3f}, PC_val: {pc_scipy:.3f}, L: {self.L_value.item():.3f}')
 
                 loss.backward()
                 optimizer.step()
